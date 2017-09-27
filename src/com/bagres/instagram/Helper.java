@@ -24,6 +24,12 @@ public class Helper {
                 arr[j] = rs.getObject(j + 1).toString();
             }
             rsArr.add(arr);
+            
+        }
+        for(String[] a : rsArr){
+        	for(String b : a){
+        		System.out.println(b);
+        	}
         }
         if (rsArr.size() == 0) {
             String[] x = {"", ""};

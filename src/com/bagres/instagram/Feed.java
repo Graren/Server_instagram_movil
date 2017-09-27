@@ -58,8 +58,22 @@ public class Feed extends HttpServlet {
 		try {
 			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 												  ResultSet.CONCUR_READ_ONLY);
-			ResultSet rs = stmt.executeQuery("SELECT * FROM publication p INNER JOIN location l ON p.id_publication = l.id_publication INNER JOIN user_action u ON u.id_publication = p.id_publication ");
-			
+			ResultSet rs = stmt.executeQuery("SELECT "
+					+ "p.id_publication as pid, "
+					+ "u.user_name as username, "
+					+ "p.publication_name as pName, "
+					+ "p.publication_description as description, "
+					+ "p.publication_date as date,"
+					+ "p.publication_path as url, "
+					+ "p.publication_extension as ext, "
+					+ "l.gps_longitude as lng, "
+					+ "l.gps_latitude as lat, "
+					// NO ENTIENDO COMO SUMAR ESTA VAINA AAAAAAAAAAAAAAAAAAAAAAAAA
+//					+ "sum()"
+					+ "FROM publication p INNER JOIN location l ON p.id_publication = l.id_publication "
+					+ "INNER JOIN user_action u ON u.id_publication = p.id_publication "
+					+ "INNER JOIN user us ON us.user_id = p.user_id "
+					+ "INNER JOIN location l ON p.id_publication = l.id_publication ");
 			response.getWriter().print(g.toJson(Helper.getResult(rs)));
 			conn.close();
 		} catch (SQLException e) {

@@ -1,6 +1,10 @@
 package com.bagres.instagram;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,20 +16,21 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import com.google.gson.Gson;
 
 /**
- * Servlet implementation class Profile
+ * Servlet implementation class Likes
  */
-@WebServlet("/profile")
-public class Profile extends HttpServlet {
+@WebServlet("/Likes")
+public class Likes extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Profile() {
+    public Likes() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -35,7 +40,18 @@ public class Profile extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String user = request.getParameter("u_id");
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String p_id = request.getParameter("p_id");
+		String pass = request.getParameter("u_id");
+		String like = request.getParameter("uLiked");
+		Boolean uLike = ("true").equals(like) ? true: false;
 		Connection conn = null ;
 		Gson g = new Gson();
 		try {
@@ -57,25 +73,18 @@ public class Profile extends HttpServlet {
 		try {
 			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 												  ResultSet.CONCUR_READ_ONLY);
-			ResultSet rs = stmt.executeQuery("SELECT * "
-					+ "FROM users u "
-					+ "WHERE u.user_id=" + user);
+			ResultSet rs = stmt.executeQuery("SELECT count(user_action_publication.user_id) "
+					+ "FROM user_action_publication "
+					+ "WHERE user_action_publication.id_publication = "
+					+ "GROUP BY user_action_publication.id_publication" + p_id);
 			
 			response.getWriter().print(g.toJson(Helper.getResult(rs)));
-			conn.close();
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response.getWriter().print("fuck");
 		}
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
 	}
 
 }
