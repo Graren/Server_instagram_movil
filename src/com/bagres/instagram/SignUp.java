@@ -80,7 +80,12 @@ public class SignUp extends HttpServlet {
 		}
 		Gson j = new Gson();
 		JsonObject js = new JsonObject();
-		Connection conn = null;
+		
+		DBConn Dcon = new DBConn();
+		Connection c = Dcon.getSQLConn();
+        Date d = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        Integer game_id;
 		try {
 			InputStream fileContent = filePart.getInputStream();
 		    OutputStream os = null;
@@ -93,25 +98,19 @@ public class SignUp extends HttpServlet {
 				while( (read = fileContent.read(bytes)) != -1){
 					os.write(bytes,0,read);
 				};
-				Class.forName("org.postgresql.Driver");
-				conn = DriverManager
-						.getConnection(DBValues.buildConnectionString(),
-								DBValues.user, DBValues.password);
-				conn.setAutoCommit(false);
 				String query = "INSERT INTO users "
-						+ "(user_name,user_password,user_email,user_birthdate,user_gender,user_description, user_image_path,user_fullname) "
+						+ "(user_name,user_password,user_email,user_gender,user_description, user_image_path,user_fullname,user_birthdate) "
 						+ "VALUES(?,?,?,?,?,?,?,?)";
-				PreparedStatement st = conn.prepareStatement(query);
+				PreparedStatement st = c.prepareStatement(query);
 				st.setString(1, user_name);
 				st.setString(2, user_password);
 				st.setString(3, user_email);
-				st.setDate(4, sqlStartDate );
-				st.setBoolean(5, user_gender);
-				st.setString(6, user_description);
-				st.setString(7, filePath);
-				st.setString(8, user_fullname);
-				st.executeUpdate();
-				st.close();
+				st.setBoolean(4, user_gender);
+				st.setString(5, user_description);
+				st.setString(6, filePath);
+				st.setString(7, user_fullname);
+				st.setDate(8, sqlStartDate );
+				st.execute();
 				js.addProperty("status",200);
 				js.addProperty("message","The User has been created");
 			}
@@ -122,9 +121,9 @@ public class SignUp extends HttpServlet {
 			finally{
 				if(fileContent != null) fileContent.close();
 				if(os != null) os.close();
-				if(conn != null) {
+				if(c != null) {
 					System.out.println("AAAAa");
-					conn.close();
+					c.close();
 				}
 				
 			}
@@ -135,7 +134,6 @@ public class SignUp extends HttpServlet {
 			js.addProperty("status",404);
 			js.addProperty("Message","Error");
 		}
-		System.out.print(js);
 		response.getWriter().print(js);
 	}
 }

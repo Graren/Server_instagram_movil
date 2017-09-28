@@ -49,7 +49,9 @@ public class Login extends HttpServlet {
 		// TODO Auto-generated method stub
 		String user = request.getParameter("user");
 		String pass = request.getParameter("password");
-		Connection conn = null ;
+		
+		DBConn Dcon = new DBConn();
+		Connection c = Dcon.getSQLConn();
 		Gson g = new Gson();
 		String query = "SELECT * FROM users WHERE user_email= '" + user + "' AND user_password= '" + pass + "'" ;
 		try {
@@ -58,17 +60,9 @@ public class Login extends HttpServlet {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		try {
-			conn = DriverManager
-					.getConnection(DBValues.buildConnectionString(),
-							DBValues.user, DBValues.password);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		Statement stmt;
 		try {
-			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+			stmt = c.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 												  ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = stmt.executeQuery(query);
 			String[][] res = Helper.getResult(rs);
@@ -90,9 +84,9 @@ public class Login extends HttpServlet {
 			response.getWriter().print("fuck");
 		}
 		finally{
-			if(conn != null)
+			if(c != null)
 				try {
-					conn.close();
+					c.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

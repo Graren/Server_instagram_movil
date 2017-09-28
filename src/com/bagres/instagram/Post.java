@@ -67,6 +67,8 @@ public class Post extends HttpServlet {
 	    String ext = fileName.split("\\.")[1];
 	    InputStream fileContent = filePart.getInputStream();
 	    OutputStream os = null;
+		DBConn Dcon = new DBConn();
+		Connection c = Dcon.getSQLConn();
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    Date da = new Date();
 		java.sql.Date sqlStartDate = null;
@@ -82,19 +84,13 @@ public class Post extends HttpServlet {
 			while( (read = fileContent.read(bytes)) != -1) {
 				os.write(bytes,0,read);
 			};
-			Connection conn = null;
 			try {
-				Class.forName("org.postgresql.Driver");
-				conn = DriverManager
-						.getConnection(DBValues.buildConnectionString(),
-								DBValues.user, DBValues.password);
-				conn.setAutoCommit(false);
 				String query = "INSERT INTO publication "
 						+ "(user_id, publication_name,publication_description,publication_date,publication_path,publication_extension) "
 						+ "VALUES(?,?,?,?,?,?) returning id_publication";
 				String query2 = "INSERT INTO location (id_publication,location_longitude,location_latitude,location_description) values (?,?,?,?)";
 				Object[] values = {user_id,name,desc,sqlStartDate,base + "/" + fileName, ext};
-				PreparedStatement st = conn.prepareStatement(query,ResultSet.TYPE_SCROLL_SENSITIVE,
+				PreparedStatement st = c.prepareStatement(query,ResultSet.TYPE_SCROLL_SENSITIVE,
 						  ResultSet.CONCUR_READ_ONLY);
 				Integer i = 1;
 				for(Object o : values){
@@ -104,8 +100,9 @@ public class Post extends HttpServlet {
 				ResultSet rs = st.executeQuery();
 				String[][] s = Helper.getResult(rs);
 				String p_id = s[0][0];
+				System.out.println(p_id);
 				st.close();
-				st = conn.prepareStatement(query2,ResultSet.TYPE_SCROLL_SENSITIVE,
+				st = c.prepareStatement(query2,ResultSet.TYPE_SCROLL_SENSITIVE,
 						  ResultSet.CONCUR_READ_ONLY);
 				values = null;
 				String[] values2 = {p_id,lat,lng,"nowhere"};
@@ -127,7 +124,7 @@ public class Post extends HttpServlet {
 				e.printStackTrace();
 			}
 			finally{
-				if(conn != null) conn.close();
+				if(c != null) c.close();
 			}
 		}
 		catch (Exception e){

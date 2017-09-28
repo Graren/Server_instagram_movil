@@ -4,7 +4,7 @@ public final class DBValues {
 	
 	public static final Integer port = 5432;
 	public static final String host = "localhost";
-	public static final String dbName = "instadb";
+	public static final String dbName = "indb";
 	public static final String user = "postgres";
 	public static final String password = "masterkey";
 	

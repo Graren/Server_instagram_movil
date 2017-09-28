@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * Servlet implementation class Feed
@@ -37,8 +39,12 @@ public class Feed extends HttpServlet {
 		// TODO Auto-generated method stub
 		String user = request.getParameter("user");
 		String pass = request.getParameter("password");
-		Connection conn = null ;
+		
+		DBConn Dcon = new DBConn();
+		Connection c = Dcon.getSQLConn();
 		Gson g = new Gson();
+		JsonObject js = new JsonObject();
+		JsonArray jarr = new JsonArray();
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e1) {
@@ -46,17 +52,9 @@ public class Feed extends HttpServlet {
 			e1.printStackTrace();
 			response.getWriter().print("fuck");
 		}
-		try {
-			conn = DriverManager
-					.getConnection(DBValues.buildConnectionString(),
-							DBValues.user, DBValues.password);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		Statement stmt;
 		try {
-			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+			stmt = c.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 												  ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = stmt.executeQuery("SELECT "
 					+ "p.id_publication as pid, "
@@ -68,18 +66,33 @@ public class Feed extends HttpServlet {
 					+ "p.publication_extension as ext, "
 					+ "location.location_longitude as lng, "
 					+ "location.location_latitude as lat, "
-					+ "count(u.uLiked) as c "
+					+ "sum(Case when u.uliked is true then 1 else 0 end) as c "
 					+ "FROM publication p "
 					+ "INNER JOIN users us ON us.user_id = p.user_id "
 					+ "INNER JOIN location ON p.id_publication = location.id_publication "
-					+ "INNER JOIN user_action u ON u.id_publication = p.id_publication "
+					+ "LEFT JOIN user_action u ON u.id_publication = p.id_publication "
 					+ "GROUP BY p.id_publication, us.user_name, location.location_longitude,location.location_latitude");
-			response.getWriter().print(g.toJson(Helper.getResult(rs)));
-			conn.close();
+			String[][] arr = Helper.getResult(rs);
+			for(String[] a : arr){
+				for(String b : a){
+					
+				}
+			}
+			response.getWriter().print(g.toJson(js));
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response.getWriter().print("fuck");
+		}
+		finally{
+			if(c != null)
+				try {
+					c.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 	}
 
