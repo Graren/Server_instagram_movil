@@ -32,7 +32,7 @@ public class Helper {
         	}
         }
         if (rsArr.size() == 0) {
-            String[] x = {"", ""};
+            String[] x = {};
             rsArr.add(x);
         }
         String[][] r = rsArr.toArray(new String[rsArr.size()][rsmd.getColumnCount()]);

@@ -85,7 +85,7 @@ public class SignUp extends HttpServlet {
 			InputStream fileContent = filePart.getInputStream();
 		    OutputStream os = null;
 			try{
-				String base = "C:/test";
+				String base = BagrePaths.path;
 				String filePath = base + "/" + System.currentTimeMillis() + "." + ext;
 				os = new FileOutputStream(filePath);
 				int read = 0;

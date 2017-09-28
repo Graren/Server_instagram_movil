@@ -60,20 +60,20 @@ public class Feed extends HttpServlet {
 												  ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = stmt.executeQuery("SELECT "
 					+ "p.id_publication as pid, "
-					+ "u.user_name as username, "
+					+ "us.user_name as username, "
 					+ "p.publication_name as pName, "
 					+ "p.publication_description as description, "
 					+ "p.publication_date as date,"
 					+ "p.publication_path as url, "
 					+ "p.publication_extension as ext, "
-					+ "l.gps_longitude as lng, "
-					+ "l.gps_latitude as lat, "
-					// NO ENTIENDO COMO SUMAR ESTA VAINA AAAAAAAAAAAAAAAAAAAAAAAAA
-//					+ "sum()"
-					+ "FROM publication p INNER JOIN location l ON p.id_publication = l.id_publication "
+					+ "location.location_longitude as lng, "
+					+ "location.location_latitude as lat, "
+					+ "count(u.uLiked) as c "
+					+ "FROM publication p "
+					+ "INNER JOIN users us ON us.user_id = p.user_id "
+					+ "INNER JOIN location ON p.id_publication = location.id_publication "
 					+ "INNER JOIN user_action u ON u.id_publication = p.id_publication "
-					+ "INNER JOIN user us ON us.user_id = p.user_id "
-					+ "INNER JOIN location l ON p.id_publication = l.id_publication ");
+					+ "GROUP BY p.id_publication, us.user_name, location.location_longitude,location.location_latitude");
 			response.getWriter().print(g.toJson(Helper.getResult(rs)));
 			conn.close();
 		} catch (SQLException e) {
