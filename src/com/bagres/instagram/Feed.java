@@ -43,7 +43,6 @@ public class Feed extends HttpServlet {
 		DBConn Dcon = new DBConn();
 		Connection c = Dcon.getSQLConn();
 		Gson g = new Gson();
-		JsonObject js = new JsonObject();
 		JsonArray jarr = new JsonArray();
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -74,11 +73,22 @@ public class Feed extends HttpServlet {
 					+ "GROUP BY p.id_publication, us.user_name, location.location_longitude,location.location_latitude");
 			String[][] arr = Helper.getResult(rs);
 			for(String[] a : arr){
-				for(String b : a){
-					
-				}
+				JsonObject j = new JsonObject();
+				j.addProperty("id_publication", a[0]);
+				j.addProperty("username", a[1]);
+				j.addProperty("pName", a[2]);
+				j.addProperty("description", a[3]);
+				j.addProperty("date", a[4]);
+				j.addProperty("url", a[5]);
+				j.addProperty("ext", a[6]);
+				j.addProperty("lng", a[7]);
+				j.addProperty("lat", a[8]);
+				j.addProperty("count", a[9]);
+				jarr.add(j);
+				
 			}
-			response.getWriter().print(g.toJson(js));
+			response.setHeader("Content-Type", "application/json");
+			response.getWriter().print(g.toJson(jarr));
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
