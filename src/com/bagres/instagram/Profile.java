@@ -35,7 +35,7 @@ public class Profile extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String user = request.getParameter("u_id");
+		String user = request.getParameter("user_id");
 		Connection conn = null ;
 		Gson g = new Gson();
 		try {
@@ -55,16 +55,29 @@ public class Profile extends HttpServlet {
 		}
 		Statement stmt;
 		try {
-			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-												  ResultSet.CONCUR_READ_ONLY);
-			ResultSet rs = stmt.executeQuery("SELECT * "
-					+ "FROM users u "
-					+ "WHERE u.user_id=" + user);
-			
+			stmt = c.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+					  ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = stmt.executeQuery("SELECT "
+					+ "p.id_publication as pid, "
+					+ "us.user_name as username, "
+					+ "p.publication_name as pName, "
+					+ "p.publication_description as description, "
+					+ "p.publication_date as date,"
+					+ "p.publication_path as url, "
+					+ "p.publication_extension as ext, "
+					+ "location.location_longitude as lng, "
+					+ "location.location_latitude as lat, "
+					+ "sum(Case when u.uliked is true then 1 else 0 end) as c "
+					+ "FROM publication p "
+					+ "INNER JOIN users us ON us.user_id = p.user_id "
+					+ "INNER JOIN location ON p.id_publication = location.id_publication "
+					+ "LEFT JOIN user_action u ON u.id_publication = p.id_publication "
+					+ "WHERE us.user_id =" + user
+					+ "GROUP BY p.id_publication, us.user_name, location.location_longitude,location.location_latitude");
 			response.getWriter().print(g.toJson(Helper.getResult(rs)));
 			conn.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		}
+		catch(SQLException e) {
 			e.printStackTrace();
 			response.getWriter().print("fuck");
 		}
