@@ -121,6 +121,9 @@ public class Likes extends HttpServlet {
 			js.addProperty("status",500);
 			js.addProperty("message","Failure liking");
 		}
+		finally{
+			try{ c.close(); } catch(Exception e){};
+		}
 		response.getWriter().print(js);
 	}
 
