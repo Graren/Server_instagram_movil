@@ -17,6 +17,12 @@ public class Helper {
             columnNames.add(rsmd.getColumnName(i + 1));
         }
         String[] cNames = columnNames.toArray(new String[rsmd.getColumnCount()]);
+        if (!rs.next()) {
+            String[] x = {};
+            rsArr.add(x);
+            String[][] r = rsArr.toArray(new String[rsArr.size()][rsmd.getColumnCount()]);
+            return r;
+        }
         rs.beforeFirst();
         for (Integer i = 0; rs.next(); i++) {
             String[] arr = new String[rsmd.getColumnCount()];
